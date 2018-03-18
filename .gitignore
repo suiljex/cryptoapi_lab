@@ -1,0 +1,12 @@
+*.[oad]
+*~
+*.*~
+core.*
+*.core
+core
+moc_*.cpp
+moc_*.h
+ui_*.h
+qrc_*.cpp
+CryptoAPI
+
