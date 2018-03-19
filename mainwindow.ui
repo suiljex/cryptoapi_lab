@@ -226,6 +226,26 @@
        <string>Создать сессионный ключ</string>
       </property>
      </widget>
+     <widget class="QTextEdit" name="textEdit_3">
+      <property name="geometry">
+       <rect>
+        <x>180</x>
+        <y>240</y>
+        <width>231</width>
+        <height>131</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QTextEdit" name="textEdit_4">
+      <property name="geometry">
+       <rect>
+        <x>410</x>
+        <y>240</y>
+        <width>231</width>
+        <height>131</height>
+       </rect>
+      </property>
+     </widget>
     </widget>
    </widget>
   </widget>

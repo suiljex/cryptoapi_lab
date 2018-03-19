@@ -79,9 +79,9 @@ void MainWindow::on_pushButton_2_clicked()
   ui->listWidget_2->addItem("Key Derived");
 
   std::wstring mess = ui->textEdit->toPlainText().toStdWString();
-  count = mess.length();
+  count = mess.length()*2;
 
-  if(!CryptEncrypt(hKey, 0, true, 0, (BYTE*)mess.c_str(), &count, mess.length()))
+  if(!CryptEncrypt(hKey, 0, true, 0, (BYTE*)mess.c_str(), &count, mess.length()*2))
   {
     return;
   }
@@ -166,7 +166,6 @@ void MainWindow::on_pushButton_4_clicked()
 
 void MainWindow::on_pushButton_5_clicked()
 {
-  HCRYPTKEY hNewKey;
   BYTE* data;
   DWORD count;
 
@@ -205,5 +204,82 @@ void MainWindow::on_pushButton_5_clicked()
 
 void MainWindow::on_pushButton_6_clicked()
 {
+  HCRYPTKEY hKey_local;
+  HCRYPTKEY hKey_public;
+  DWORD count;
+  DWORD err;
+/*
+  if (!CryptAcquireContext(&hProv_local, NULL, NULL,PROV_RSA_FULL, NULL))
+  {
+//    Error("CryptAcquireContext");
+    return;
+  }
+*/
+  if (!CryptGenKey(hProv_new, CALG_RC4, CRYPT_EXPORTABLE | CRYPT_ENCRYPT | CRYPT_DECRYPT, &hKey_local))
+  {
+    return;
+  }
+  ui->listWidget_2->addItem("Session key generated");
+
+  std::wstring mess = ui->textEdit_3->toPlainText().toStdWString();
+  count = mess.length()*2;
+
+  if(!CryptEncrypt(hKey_local, 0, true, 0, (BYTE*)mess.c_str(), &count, mess.length()*2))
+  {
+    return;
+  }
+
+  ui->listWidget_2->addItem("Text Encrypted");
+  ui->textEdit_4->setText(QString::fromStdWString(mess));
+
+  std::wofstream fout;
+  fout.open("output_asym.txt");
+  if(fout.is_open())
+  {
+    fout << mess;
+    ui->listWidget_2->addItem("File");
+    fout.close();
+  }
+
+/*
+  // Получение ключа для экспорта ключа шифрования
+  if (!CryptGetUserKey(hProv_new, AT_KEYEXCHANGE, &hKey_public))
+  {
+    err = GetLastError();
+    return;
+  }
+  ui->listWidget_2->addItem("Public key is received");
+*/
+
+  count = 0;
+  hKey_public = hNewKey;
+
+  // Получение размера массива, используемого для экспорта ключа
+  if (!CryptExportKey(hKey_local, hNewKey, SIMPLEBLOB, 0, NULL, &count))
+  {
+    err = GetLastError();
+    return;
+  }
+
+  // Инициализация массива, используемого для экспорта ключа
+  BYTE* data = static_cast<BYTE*>(malloc(count));
+  ZeroMemory(data, count);
+
+  // Экспорт ключа шифрования
+  if (!CryptExportKey(hKey_local, hNewKey, SIMPLEBLOB, 0, data, &count))
+  {
+    err = GetLastError();
+    return;
+  }
+  ui->listWidget_2->addItem("Key's export completed");
+
+  std::ofstream foutk;
+  foutk.open("output_enckey.txt");
+  if(foutk.is_open())
+  {
+    foutk.write((char*)data, count);
+    ui->listWidget_2->addItem("Key exported");
+    foutk.close();
+  }
 
 }

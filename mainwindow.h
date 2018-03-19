@@ -35,7 +35,9 @@ private:
     Ui::MainWindow *ui;
     HCRYPTPROV hProv_asym;
     HCRYPTKEY hKey_asym;
+    HCRYPTKEY hNewKey;
     HCRYPTPROV hProv_new;
+    HCRYPTPROV hProv_local;
 };
 
 #endif // MAINWINDOW_H
