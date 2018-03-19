@@ -31,6 +31,8 @@ private slots:
 
     void on_pushButton_6_clicked();
 
+    void on_pushButton_7_clicked();
+
 private:
     Ui::MainWindow *ui;
     HCRYPTPROV hProv_asym;
@@ -38,6 +40,8 @@ private:
     HCRYPTKEY hNewKey;
     HCRYPTPROV hProv_new;
     HCRYPTPROV hProv_local;
+
+    HCRYPTKEY hKey_local_test;
 };
 
 #endif // MAINWINDOW_H

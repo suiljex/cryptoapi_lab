@@ -221,6 +221,8 @@ void MainWindow::on_pushButton_6_clicked()
   }
   ui->listWidget_2->addItem("Session key generated");
 
+  hKey_local_test = hKey_local;
+
   std::wstring mess = ui->textEdit_3->toPlainText().toStdWString();
   count = mess.length()*2;
 
@@ -232,11 +234,11 @@ void MainWindow::on_pushButton_6_clicked()
   ui->listWidget_2->addItem("Text Encrypted");
   ui->textEdit_4->setText(QString::fromStdWString(mess));
 
-  std::wofstream fout;
+  std::ofstream fout;
   fout.open("output_asym.txt");
   if(fout.is_open())
   {
-    fout << mess;
+    fout.write((char*)mess.c_str(), count);
     ui->listWidget_2->addItem("File");
     fout.close();
   }
@@ -281,5 +283,81 @@ void MainWindow::on_pushButton_6_clicked()
     ui->listWidget_2->addItem("Key exported");
     foutk.close();
   }
+}
 
+void MainWindow::on_pushButton_7_clicked()
+{
+  BYTE* data;
+  wchar_t* mess;
+  DWORD count;
+  DWORD count_mess;
+  DWORD err;
+  HCRYPTKEY hKey_private;
+  HCRYPTKEY hKey_session;
+
+  if (!CryptGetUserKey(hProv_asym, AT_KEYEXCHANGE, &hKey_private))
+  {
+    err = GetLastError();
+    return;
+  }
+  ui->listWidget_2->addItem("Private key is received");
+
+  std::ifstream fin;
+  fin.open("output_enckey.txt", std::ios_base::binary);
+  if(fin.is_open())
+  {
+    fin.seekg(0, std::ios_base::end);
+    count = fin.tellg();
+//    count = 140;
+
+    data = static_cast<BYTE*>(malloc(count));
+    ZeroMemory(data, count);
+
+    fin.seekg(0, std::ios_base::beg);
+    for (int br = 0; br < count; ++br)
+    {
+      fin.read((char*)data+br, 1);
+    }
+    ui->listWidget_2->addItem("Key read");
+    fin.close();
+
+    /*if(!CryptImportKey(hProv_asym, data, count, hKey_private, 0, &hKey_session))
+    {
+      err = GetLastError();
+      return;
+    }*/
+
+    ui->listWidget_2->addItem("Key's import completed");
+  }
+
+  fin.open("output_asym.txt", std::ios_base::binary);
+  if(fin.is_open())
+  {
+    fin.seekg(0, std::ios_base::end);
+    count = fin.tellg();
+    count_mess = count;
+
+    data = static_cast<BYTE*>(malloc(count));
+    ZeroMemory(data, count);
+
+    fin.seekg(0, std::ios_base::beg);
+    for (int br = 0; br < count; ++br)
+    {
+      fin.read((char*)data+br, 1);
+    }
+    ui->listWidget_2->addItem("Message read");
+    fin.close();
+
+    if(!CryptEncrypt(hKey_local_test, 0, true, 0, data, &count_mess, count))
+    {
+      err = GetLastError();
+      return;
+    }
+
+    std::wstring temp((wchar_t*)data);
+    temp.erase(count/2, temp.length());
+
+    ui->listWidget_2->addItem("Text Decrypted");
+    ui->textEdit_4->setText(QString::fromStdWString(temp.c_str()));
+  }
 }
