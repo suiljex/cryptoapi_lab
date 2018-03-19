@@ -20,7 +20,7 @@
       <x>670</x>
       <y>20</y>
       <width>201</width>
-      <height>421</height>
+      <height>401</height>
      </rect>
     </property>
    </widget>
@@ -197,7 +197,8 @@
        </rect>
       </property>
       <property name="text">
-       <string>Экспорт</string>
+       <string>Экспорт публичного
+ключа</string>
       </property>
      </widget>
      <widget class="QPushButton" name="pushButton_5">
@@ -210,7 +211,8 @@
        </rect>
       </property>
       <property name="text">
-       <string>Импорт</string>
+       <string>Импорт публичного
+ключа</string>
       </property>
      </widget>
      <widget class="QPushButton" name="pushButton_6">
@@ -223,7 +225,9 @@
        </rect>
       </property>
       <property name="text">
-       <string>Создать сессионный ключ</string>
+       <string>Создать сессионный ключ
+Зашифровать сообщение
+Экспортировать ключ</string>
       </property>
      </widget>
      <widget class="QTextEdit" name="textEdit_3">
@@ -251,15 +255,68 @@
        <rect>
         <x>170</x>
         <y>70</y>
-        <width>141</width>
+        <width>211</width>
         <height>51</height>
        </rect>
       </property>
       <property name="text">
-       <string>Расшифровать</string>
+       <string>Импорт сессионного ключа
+Расшифровка сообщения</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>180</x>
+        <y>220</y>
+        <width>231</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Шифруемый текст</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_6">
+      <property name="geometry">
+       <rect>
+        <x>410</x>
+        <y>220</y>
+        <width>231</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Результат</string>
       </property>
      </widget>
     </widget>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>670</x>
+      <y>430</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Последняя ошибка:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>780</x>
+      <y>430</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>None</string>
+    </property>
    </widget>
   </widget>
  </widget>

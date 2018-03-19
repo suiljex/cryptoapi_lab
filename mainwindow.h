@@ -6,6 +6,8 @@
 #include <iostream>
 #include <fstream>
 
+#define CMDEND "-------"
+
 namespace Ui {
 class MainWindow;
 }
@@ -35,13 +37,11 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    HCRYPTPROV hProv_asym;
-    HCRYPTKEY hKey_asym;
-    HCRYPTKEY hNewKey;
-    HCRYPTPROV hProv_new;
-    HCRYPTPROV hProv_local;
 
-    HCRYPTKEY hKey_local_test;
+    HCRYPTPROV hProv_asym_server;
+    HCRYPTPROV hProv_asym_client;
+    HCRYPTKEY hKey_public_client;
+
 };
 
 #endif // MAINWINDOW_H

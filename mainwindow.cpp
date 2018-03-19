@@ -20,6 +20,8 @@ void MainWindow::on_pushButton_clicked()
   DWORD cbName;
   LPTSTR pszName;
 
+  DWORD err;
+
   while (CryptEnumProviders(dwIndex, NULL, 0, &dwType, NULL, &cbName))
   {
     if (!cbName)
@@ -28,7 +30,8 @@ void MainWindow::on_pushButton_clicked()
       return;
     if (!CryptEnumProviders(dwIndex++, NULL, 0, &dwType, pszName, &cbName))
     {
-//      Error("CryptEnumProviders");
+      err = GetLastError();
+      ui->label_8->setText(QString::number(err));
       return;
     }
     ui->listWidget->addItem(QString("--------------------------------"));
@@ -44,10 +47,13 @@ void MainWindow::on_pushButton_2_clicked()
   HCRYPTKEY hKey;
   HCRYPTHASH hHash;
 
+  DWORD err;
+
   // Получение контекста криптопровайдера
   if (!CryptAcquireContext(&hProv, NULL, NULL,PROV_RSA_FULL, NULL))
   {
-//    Error("CryptAcquireContext");
+    err = GetLastError();
+    ui->label_8->setText(QString::number(err));
     return;
   }
   ui->listWidget_2->addItem("Cryptographic provider initialized");
@@ -55,7 +61,8 @@ void MainWindow::on_pushButton_2_clicked()
   // Cоздание хеш-объекта
   if(!CryptCreateHash(hProv, CALG_MD5, 0, 0, &hHash))
   {
-//    Error("CryptCreateHash");
+    err = GetLastError();
+    ui->label_8->setText(QString::number(err));
     return;
   }
   ui->listWidget_2->addItem("Hash created");
@@ -67,13 +74,16 @@ void MainWindow::on_pushButton_2_clicked()
 
   if(!CryptHashData(hHash, (BYTE*)(pass.c_str()), count, 0))
   {
-//    Error("CryptHashData");
+    err = GetLastError();
+    ui->label_8->setText(QString::number(err));
     return;
   }
   ui->listWidget_2->addItem("Hash data loaded");
 
   if(!CryptDeriveKey(hProv, CALG_RC4, hHash, NULL, &hKey))
   {
+    err = GetLastError();
+    ui->label_8->setText(QString::number(err));
     return;
   }
   ui->listWidget_2->addItem("Key Derived");
@@ -83,6 +93,8 @@ void MainWindow::on_pushButton_2_clicked()
 
   if(!CryptEncrypt(hKey, 0, true, 0, (BYTE*)mess.c_str(), &count, mess.length()*2))
   {
+    err = GetLastError();
+    ui->label_8->setText(QString::number(err));
     return;
   }
 
@@ -98,40 +110,49 @@ void MainWindow::on_pushButton_2_clicked()
     fout.close();
   }
 
+  ui->listWidget_2->addItem(CMDEND);
 }
 
 void MainWindow::on_pushButton_3_clicked()
 {
-  HCRYPTHASH hHash;
+  HCRYPTKEY hKey_asym;
+
+  DWORD err;
 
   // Получение контекста криптопровайдера
-  if (!CryptAcquireContext(&hProv_asym, ui->lineEdit_2->text().toStdWString().c_str(), NULL,PROV_RSA_FULL, CRYPT_NEWKEYSET))
+  if (!CryptAcquireContext(&hProv_asym_server, ui->lineEdit_2->text().toStdWString().c_str(), NULL,PROV_RSA_FULL, CRYPT_NEWKEYSET))
   {
-//    Error("CryptAcquireContext");
+    err = GetLastError();
+    ui->label_8->setText(QString::number(err));
     return;
   }
-
   ui->listWidget_2->addItem("Cryptographic provider initialized");
 
   // Генерация ключа для тестирования
-  if (!CryptGenKey(hProv_asym, AT_KEYEXCHANGE, CRYPT_EXPORTABLE | CRYPT_ENCRYPT | CRYPT_DECRYPT, &hKey_asym))
+  if (!CryptGenKey(hProv_asym_server, AT_KEYEXCHANGE, CRYPT_EXPORTABLE | CRYPT_ENCRYPT | CRYPT_DECRYPT, &hKey_asym))
   {
+    err = GetLastError();
+    ui->label_8->setText(QString::number(err));
     return;
   }
-  ui->listWidget_2->addItem("Session key generated");
+  ui->listWidget_2->addItem("Private/Public keys generated");
 
+  ui->listWidget_2->addItem(CMDEND);
 }
 
 void MainWindow::on_pushButton_4_clicked()
 {
   HCRYPTKEY hPublicKey;
 
+  DWORD err;
+
   // Получение ключа для экспорта ключа шифрования
-  if (!CryptGetUserKey(hProv_asym, AT_KEYEXCHANGE, &hPublicKey))
+  if (!CryptGetUserKey(hProv_asym_server, AT_KEYEXCHANGE, &hPublicKey))
   {
+    err = GetLastError();
+    ui->label_8->setText(QString::number(err));
     return;
   }
-
   ui->listWidget_2->addItem("Public key is received");
 
   DWORD count = 0;
@@ -139,6 +160,8 @@ void MainWindow::on_pushButton_4_clicked()
   // Получение размера массива, используемого для экспорта ключа
   if (!CryptExportKey(hPublicKey, 0, PUBLICKEYBLOB, 0, NULL, &count))
   {
+    err = GetLastError();
+    ui->label_8->setText(QString::number(err));
     return;
   }
 
@@ -149,9 +172,10 @@ void MainWindow::on_pushButton_4_clicked()
   // Экспорт ключа шифрования
   if (!CryptExportKey(hPublicKey, 0, PUBLICKEYBLOB, 0, data, &count))
   {
+    err = GetLastError();
+    ui->label_8->setText(QString::number(err));
     return;
   }
-
   ui->listWidget_2->addItem("Key's export completed");
 
   std::ofstream fout;
@@ -159,15 +183,19 @@ void MainWindow::on_pushButton_4_clicked()
   if(fout.is_open())
   {
     fout.write((char*)data, count);
-    ui->listWidget_2->addItem("Key exported");
+    ui->listWidget_2->addItem("Key exported to file");
     fout.close();
   }
+  ui->listWidget_2->addItem(CMDEND);
 }
 
 void MainWindow::on_pushButton_5_clicked()
 {
+  HCRYPTKEY hNewKey;
+
   BYTE* data;
   DWORD count;
+  DWORD err;
 
   std::ifstream fin;
   fin.open("output.txt", std::ios_base::binary);
@@ -180,54 +208,53 @@ void MainWindow::on_pushButton_5_clicked()
     ZeroMemory(data, count);
 
     fin.seekg(0, std::ios_base::beg);
-    for (int br = 0; br < count; ++br)
-    {
-      fin.read((char*)data+br, 1);
-    }
-    ui->listWidget_2->addItem("Key read");
+    fin.read((char*)data, count);
+
+    ui->listWidget_2->addItem("Key read from file");
     fin.close();
 
-    if (!CryptAcquireContext(&hProv_new, NULL, NULL,PROV_RSA_FULL, NULL))
+    if (!CryptAcquireContext(&hProv_asym_client, NULL, NULL,PROV_RSA_FULL, NULL))
     {
-  //    Error("CryptAcquireContext");
+      err = GetLastError();
+      ui->label_8->setText(QString::number(err));
       return;
     }
+    ui->listWidget_2->addItem("Cryptographic provider initialized");
 
-    if(!CryptImportKey(hProv_new, data, count, 0, 0, &hNewKey))
+    if(!CryptImportKey(hProv_asym_client, data, count, 0, 0, &hNewKey))
     {
-      DWORD error = GetLastError();
+      err = GetLastError();
+      ui->label_8->setText(QString::number(err));
       return;
     }
+    hKey_public_client = hNewKey;
     ui->listWidget_2->addItem("Key's import completed");
   }
+  ui->listWidget_2->addItem(CMDEND);
 }
 
 void MainWindow::on_pushButton_6_clicked()
 {
-  HCRYPTKEY hKey_local;
-  HCRYPTKEY hKey_public;
+  HCRYPTKEY hKey_session;
+
   DWORD count;
   DWORD err;
-/*
-  if (!CryptAcquireContext(&hProv_local, NULL, NULL,PROV_RSA_FULL, NULL))
+
+  if (!CryptGenKey(hProv_asym_client, CALG_RC4, CRYPT_EXPORTABLE | CRYPT_ENCRYPT | CRYPT_DECRYPT, &hKey_session))
   {
-//    Error("CryptAcquireContext");
-    return;
-  }
-*/
-  if (!CryptGenKey(hProv_new, CALG_RC4, CRYPT_EXPORTABLE | CRYPT_ENCRYPT | CRYPT_DECRYPT, &hKey_local))
-  {
+    err = GetLastError();
+    ui->label_8->setText(QString::number(err));
     return;
   }
   ui->listWidget_2->addItem("Session key generated");
 
-  hKey_local_test = hKey_local;
-
   std::wstring mess = ui->textEdit_3->toPlainText().toStdWString();
   count = mess.length()*2;
 
-  if(!CryptEncrypt(hKey_local, 0, true, 0, (BYTE*)mess.c_str(), &count, mess.length()*2))
+  if(!CryptEncrypt(hKey_session, 0, true, 0, (BYTE*)mess.c_str(), &count, mess.length()*2))
   {
+    err = GetLastError();
+    ui->label_8->setText(QString::number(err));
     return;
   }
 
@@ -239,27 +266,28 @@ void MainWindow::on_pushButton_6_clicked()
   if(fout.is_open())
   {
     fout.write((char*)mess.c_str(), count);
-    ui->listWidget_2->addItem("File");
+    ui->listWidget_2->addItem("Encrypted text written to file");
     fout.close();
   }
 
-/*
+  /*
   // Получение ключа для экспорта ключа шифрования
-  if (!CryptGetUserKey(hProv_new, AT_KEYEXCHANGE, &hKey_public))
+  if (!CryptGetUserKey(hProv_asym_client, AT_KEYEXCHANGE, &hKey_public))
   {
     err = GetLastError();
+    ui->label_8->setText(QString::number(err));
     return;
   }
   ui->listWidget_2->addItem("Public key is received");
-*/
+  */
 
   count = 0;
-  hKey_public = hNewKey;
 
   // Получение размера массива, используемого для экспорта ключа
-  if (!CryptExportKey(hKey_local, hNewKey, SIMPLEBLOB, 0, NULL, &count))
+  if (!CryptExportKey(hKey_session, hKey_public_client, SIMPLEBLOB, 0, NULL, &count))
   {
     err = GetLastError();
+    ui->label_8->setText(QString::number(err));
     return;
   }
 
@@ -268,9 +296,10 @@ void MainWindow::on_pushButton_6_clicked()
   ZeroMemory(data, count);
 
   // Экспорт ключа шифрования
-  if (!CryptExportKey(hKey_local, hNewKey, SIMPLEBLOB, 0, data, &count))
+  if (!CryptExportKey(hKey_session, hKey_public_client, SIMPLEBLOB, 0, data, &count))
   {
     err = GetLastError();
+      ui->label_8->setText(QString::number(err));
     return;
   }
   ui->listWidget_2->addItem("Key's export completed");
@@ -280,24 +309,37 @@ void MainWindow::on_pushButton_6_clicked()
   if(foutk.is_open())
   {
     foutk.write((char*)data, count);
-    ui->listWidget_2->addItem("Key exported");
+    ui->listWidget_2->addItem("Key exported to file");
     foutk.close();
   }
+
+  ui->listWidget_2->addItem(CMDEND);
 }
 
 void MainWindow::on_pushButton_7_clicked()
 {
+  HCRYPTPROV hProv_asym;
+  HCRYPTKEY hKey_private;
+
   BYTE* data;
-  wchar_t* mess;
   DWORD count;
   DWORD count_mess;
   DWORD err;
-  HCRYPTKEY hKey_private;
+
   HCRYPTKEY hKey_session;
+
+  if (!CryptAcquireContext(&hProv_asym, ui->lineEdit_2->text().toStdWString().c_str(), NULL,PROV_RSA_FULL, 0))
+  {
+    err = GetLastError();
+    ui->label_8->setText(QString::number(err));
+    return;
+  }
+  ui->listWidget_2->addItem("Cryptographic provider initialized");
 
   if (!CryptGetUserKey(hProv_asym, AT_KEYEXCHANGE, &hKey_private))
   {
     err = GetLastError();
+    ui->label_8->setText(QString::number(err));
     return;
   }
   ui->listWidget_2->addItem("Private key is received");
@@ -314,18 +356,17 @@ void MainWindow::on_pushButton_7_clicked()
     ZeroMemory(data, count);
 
     fin.seekg(0, std::ios_base::beg);
-    for (int br = 0; br < count; ++br)
-    {
-      fin.read((char*)data+br, 1);
-    }
-    ui->listWidget_2->addItem("Key read");
+    fin.read((char*)data, count);
+
+    ui->listWidget_2->addItem("Key read from file");
     fin.close();
 
-    /*if(!CryptImportKey(hProv_asym, data, count, hKey_private, 0, &hKey_session))
+    if(!CryptImportKey(hProv_asym, data, count, hKey_private, 0, &hKey_session))
     {
       err = GetLastError();
+      ui->label_8->setText(QString::number(err));
       return;
-    }*/
+    }
 
     ui->listWidget_2->addItem("Key's import completed");
   }
@@ -341,16 +382,15 @@ void MainWindow::on_pushButton_7_clicked()
     ZeroMemory(data, count);
 
     fin.seekg(0, std::ios_base::beg);
-    for (int br = 0; br < count; ++br)
-    {
-      fin.read((char*)data+br, 1);
-    }
-    ui->listWidget_2->addItem("Message read");
+    fin.read((char*)data, count);
+
+    ui->listWidget_2->addItem("Message read from file");
     fin.close();
 
-    if(!CryptEncrypt(hKey_local_test, 0, true, 0, data, &count_mess, count))
+    if(!CryptEncrypt(hKey_session, 0, true, 0, data, &count_mess, count))
     {
       err = GetLastError();
+      ui->label_8->setText(QString::number(err));
       return;
     }
 
@@ -360,4 +400,7 @@ void MainWindow::on_pushButton_7_clicked()
     ui->listWidget_2->addItem("Text Decrypted");
     ui->textEdit_4->setText(QString::fromStdWString(temp.c_str()));
   }
+
+  ui->listWidget_2->addItem(CMDEND);
 }
+
