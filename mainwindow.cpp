@@ -6,6 +6,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    session_key_file = "session_key";
+    public_key_file = "public_key";
+    message_file = "message";
 }
 
 MainWindow::~MainWindow()
@@ -102,7 +105,7 @@ void MainWindow::on_pushButton_2_clicked()
   ui->textEdit_2->setText(QString::fromStdWString(mess));
 
   std::wofstream fout;
-  fout.open("output.txt");
+  fout.open("op_enc_txt");
   if(fout.is_open())
   {
     fout << mess;
@@ -179,7 +182,7 @@ void MainWindow::on_pushButton_4_clicked()
   ui->listWidget_2->addItem("Key's export completed");
 
   std::ofstream fout;
-  fout.open("output.txt", std::ios_base::binary);
+  fout.open(public_key_file.toStdString().c_str(), std::ios_base::binary);
   if(fout.is_open())
   {
     fout.write((char*)data, count);
@@ -198,7 +201,7 @@ void MainWindow::on_pushButton_5_clicked()
   DWORD err;
 
   std::ifstream fin;
-  fin.open("output.txt", std::ios_base::binary);
+  fin.open(public_key_file.toStdString().c_str(), std::ios_base::binary);
   if(fin.is_open())
   {
     fin.seekg(0, std::ios_base::end);
@@ -262,7 +265,7 @@ void MainWindow::on_pushButton_6_clicked()
   ui->textEdit_4->setText(QString::fromStdWString(mess));
 
   std::ofstream fout;
-  fout.open("output_asym.txt", std::ios_base::binary);
+  fout.open(message_file.toStdString().c_str(), std::ios_base::binary);
   if(fout.is_open())
   {
     fout.write((char*)mess.c_str(), count);
@@ -305,7 +308,7 @@ void MainWindow::on_pushButton_6_clicked()
   ui->listWidget_2->addItem("Key's export completed");
 
   std::ofstream foutk;
-  foutk.open("output_enckey.txt", std::ios_base::binary);
+  foutk.open(session_key_file.toStdString().c_str(), std::ios_base::binary);
   if(foutk.is_open())
   {
     foutk.write((char*)data, count);
@@ -345,7 +348,7 @@ void MainWindow::on_pushButton_7_clicked()
   ui->listWidget_2->addItem("Private key is received");
 
   std::ifstream fin;
-  fin.open("output_enckey.txt", std::ios_base::binary);
+  fin.open(session_key_file.toStdString().c_str(), std::ios_base::binary);
   if(fin.is_open())
   {
     fin.seekg(0, std::ios_base::end);
@@ -371,7 +374,7 @@ void MainWindow::on_pushButton_7_clicked()
     ui->listWidget_2->addItem("Key's import completed");
   }
 
-  fin.open("output_asym.txt", std::ios_base::binary);
+  fin.open(message_file.toStdString().c_str(), std::ios_base::binary);
   if(fin.is_open())
   {
     fin.seekg(0, std::ios_base::end);
@@ -404,3 +407,24 @@ void MainWindow::on_pushButton_7_clicked()
   ui->listWidget_2->addItem(CMDEND);
 }
 
+
+void MainWindow::on_pushButton_8_clicked()
+{
+  //QFileDialog file_dialog_pk;
+  //file_dialog_pk.setAcceptMode(QFileDialog::AcceptSave);
+  public_key_file = QFileDialog::getSaveFileName(this);//file_dialog_pk.getOpenFileName(this, "Публичный ключ", "");
+}
+
+void MainWindow::on_pushButton_9_clicked()
+{
+  //QFileDialog file_dialog_pk;
+  //file_dialog_pk.setAcceptMode(QFileDialog::AcceptSave);
+  session_key_file = QFileDialog::getSaveFileName(this);//file_dialog_pk.getOpenFileName(this, "Cессионый ключ", "");
+}
+
+void MainWindow::on_pushButton_10_clicked()
+{
+  //QFileDialog file_dialog_pk;
+  //file_dialog_pk.setAcceptMode(QFileDialog::AcceptSave);
+  message_file = QFileDialog::getSaveFileName(this);
+}

@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QFileDialog>
+
 #include <windows.h>
 #include <iostream>
 #include <fstream>
@@ -35,13 +37,21 @@ private slots:
 
     void on_pushButton_7_clicked();
 
+    void on_pushButton_8_clicked();
+
+    void on_pushButton_9_clicked();
+
+    void on_pushButton_10_clicked();
+
 private:
     Ui::MainWindow *ui;
 
     HCRYPTPROV hProv_asym_server;
     HCRYPTPROV hProv_asym_client;
     HCRYPTKEY hKey_public_client;
-
+    QString public_key_file;
+    QString session_key_file;
+    QString message_file;
 };
 
 #endif // MAINWINDOW_H
