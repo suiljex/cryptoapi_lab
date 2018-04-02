@@ -179,7 +179,7 @@ void MainWindow::on_pushButton_4_clicked()
   ui->listWidget_2->addItem("Key's export completed");
 
   std::ofstream fout;
-  fout.open("output.txt");
+  fout.open("output.txt", std::ios_base::binary);
   if(fout.is_open())
   {
     fout.write((char*)data, count);
@@ -262,7 +262,7 @@ void MainWindow::on_pushButton_6_clicked()
   ui->textEdit_4->setText(QString::fromStdWString(mess));
 
   std::ofstream fout;
-  fout.open("output_asym.txt");
+  fout.open("output_asym.txt", std::ios_base::binary);
   if(fout.is_open())
   {
     fout.write((char*)mess.c_str(), count);
@@ -305,7 +305,7 @@ void MainWindow::on_pushButton_6_clicked()
   ui->listWidget_2->addItem("Key's export completed");
 
   std::ofstream foutk;
-  foutk.open("output_enckey.txt");
+  foutk.open("output_enckey.txt", std::ios_base::binary);
   if(foutk.is_open())
   {
     foutk.write((char*)data, count);
