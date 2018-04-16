@@ -38,7 +38,7 @@
     </property>
     <widget class="QWidget" name="tab_3">
      <attribute name="title">
-      <string>Tab 1</string>
+      <string>СИМ</string>
      </attribute>
      <widget class="QListWidget" name="listWidget">
       <property name="geometry">
@@ -149,7 +149,7 @@
     </widget>
     <widget class="QWidget" name="tab_4">
      <attribute name="title">
-      <string>Tab 2</string>
+      <string>АСИМ</string>
      </attribute>
      <widget class="QPushButton" name="pushButton_3">
       <property name="geometry">
@@ -329,6 +329,11 @@
        <string>Сообщение</string>
       </property>
      </widget>
+    </widget>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>ЭП</string>
+     </attribute>
     </widget>
    </widget>
    <widget class="QLabel" name="label_7">

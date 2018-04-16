@@ -16,6 +16,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+//СИМ
+
 void MainWindow::on_pushButton_clicked()
 {
   DWORD dwIndex=0;
@@ -115,6 +117,8 @@ void MainWindow::on_pushButton_2_clicked()
 
   ui->listWidget_2->addItem(CMDEND);
 }
+
+//АСИМ
 
 void MainWindow::on_pushButton_3_clicked()
 {
@@ -243,6 +247,7 @@ void MainWindow::on_pushButton_6_clicked()
   DWORD count;
   DWORD err;
 
+//CryptGenKey(hProv_asym_client, CALG_RC4, CRYPT_EXPORTABLE | CRYPT_ENCRYPT, &hKey_session)
   if (!CryptGenKey(hProv_asym_client, CALG_RC4, CRYPT_EXPORTABLE | CRYPT_ENCRYPT | CRYPT_DECRYPT, &hKey_session))
   {
     err = GetLastError();
@@ -331,7 +336,7 @@ void MainWindow::on_pushButton_7_clicked()
 
   HCRYPTKEY hKey_session;
 
-  if (!CryptAcquireContext(&hProv_asym, ui->lineEdit_2->text().toStdWString().c_str(), NULL,PROV_RSA_FULL, 0))
+  if (!CryptAcquireContext(&hProv_asym, ui->lineEdit_2->text().toStdWString().c_str(), NULL, PROV_RSA_FULL, 0))
   {
     err = GetLastError();
     ui->label_8->setText(QString::number(err));
@@ -381,7 +386,7 @@ void MainWindow::on_pushButton_7_clicked()
     count = fin.tellg();
     count_mess = count;
 
-    data = static_cast<BYTE*>(malloc(count));
+    data = static_cast<BYTE*>(malloc(count + 2));
     ZeroMemory(data, count);
 
     fin.seekg(0, std::ios_base::beg);
@@ -397,9 +402,12 @@ void MainWindow::on_pushButton_7_clicked()
       return;
     }
 
+    *(data+count) = '\0';
+    *(data+count+1) = '\0';
     std::wstring temp((wchar_t*)data);
-    temp.erase(count/2, temp.length());
+//    temp.erase(count/2, temp.length());
 
+//    ui->listWidget_2->addItem(QString::fromStdString(std::string((char*)data)));
     ui->listWidget_2->addItem("Text Decrypted");
     ui->textEdit_4->setText(QString::fromStdWString(temp.c_str()));
   }
@@ -428,3 +436,7 @@ void MainWindow::on_pushButton_10_clicked()
   //file_dialog_pk.setAcceptMode(QFileDialog::AcceptSave);
   message_file = QFileDialog::getSaveFileName(this);
 }
+
+//ЭП
+
+
